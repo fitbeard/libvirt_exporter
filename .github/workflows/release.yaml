@@ -29,8 +29,8 @@ jobs:
         cd libvirt-3.2.0
         ./configure --disable-shared --enable-static --localstatedir=/var --without-storage-mpath
         make -j2
-        make install
-        sed -i 's/^Libs:.*/& -lnl -ltirpc -lxml2/' /usr/local/lib/pkgconfig/libvirt.pc
+        sudo make install
+        sudo sed -i 's/^Libs:.*/& -lnl -ltirpc -lxml2/' /usr/local/lib/pkgconfig/libvirt.pc
         
     - name: Get Go dependencies
       run: |
