@@ -22,13 +22,7 @@ jobs:
       
     - name: Get dependencies
       run: |
-        cd /tmp
-        wget ftp://xmlsoft.org/libxml2/libxml2-2.9.4.tar.gz
-        tar -xf libxml2-2.9.4.tar.gz
-        cd libxml2-2.9.4
-        ./configure --disable-shared --enable-static
-        make -j2
-        make install
+        apt-get install -y libxml2-dev
         cd /tmp
         wget https://libvirt.org/sources/libvirt-3.2.0.tar.xz
         tar -xf libvirt-3.2.0.tar.xz
