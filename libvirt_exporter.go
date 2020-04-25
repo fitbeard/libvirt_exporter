@@ -19,10 +19,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/kumina/libvirt_exporter/libvirt_schema"
+	"github.com/fitbeard/libvirt_exporter/libvirt_schema"
 	"github.com/libvirt/libvirt-go"
 	"github.com/prometheus/client_golang/prometheus"
-    "github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -246,9 +246,9 @@ func (e *LibvirtExporter) CollectFromLibvirt(ch chan<- prometheus.Metric) error 
 	}
 	// number of domains
 	ch <- prometheus.MustNewConstMetric(
-		    e.libvirtDomainsNumberDesc,
-		    prometheus.GaugeValue,
-			float64(len(domainIds)))
+		e.libvirtDomainsNumberDesc,
+		prometheus.GaugeValue,
+		float64(len(domainIds)))
 
 	for _, id := range domainIds {
 		domain, err := conn.LookupDomainById(id)
