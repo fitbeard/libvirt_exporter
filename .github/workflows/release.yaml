@@ -16,6 +16,7 @@ jobs:
 
     - name: Docker login
       run: echo ${{ secrets.UPLOAD_TOKEN }} | docker login -u fitbeard --password-stdin docker.pkg.github.com
+
     - name: Build
       run: bash build_static_only_go.sh
 
