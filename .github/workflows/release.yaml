@@ -12,7 +12,7 @@ jobs:
     steps:
 
     - name: Build
-      run: bash build_statick_only_go.sh
+      run: bash build_static_only_go.sh
 
     - name: Release
       uses: fnkr/github-action-ghr@v1
