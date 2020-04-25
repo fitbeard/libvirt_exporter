@@ -22,7 +22,7 @@ jobs:
       
     - name: Get dependencies
       run: |
-        sudo apt-get install -y libxml2-dev libnl-3-dev libtirpc-dev
+        sudo apt-get install -y libxml2-dev libnl-3-dev libnl-route-3-dev libtirpc-dev
         cd /tmp
         wget https://libvirt.org/sources/libvirt-3.2.0.tar.xz
         tar -xf libvirt-3.2.0.tar.xz
