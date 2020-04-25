@@ -19,8 +19,26 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
-
+      
     - name: Get dependencies
+      run: |
+        cd /tmp
+        wget ftp://xmlsoft.org/libxml2/libxml2-2.9.4.tar.gz
+        tar -xf libxml2-2.9.4.tar.gz
+        cd libxml2-2.9.4
+        ./configure --disable-shared --enable-static
+        make -j2
+        make install
+        cd /tmp
+        wget https://libvirt.org/sources/libvirt-3.2.0.tar.xz
+        tar -xf libvirt-3.2.0.tar.xz
+        cd libvirt-3.2.0
+        ./configure --disable-shared --enable-static --localstatedir=/var --without-storage-mpath
+        make -j2
+        make install
+        sed -i 's/^Libs:.*/& -lnl -ltirpc -lxml2/' /usr/local/lib/pkgconfig/libvirt.pc
+        
+    - name: Get Go dependencies
       run: |
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
@@ -29,4 +47,6 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v .
+      run: |
+        go build -v --ldflags '-extldflags "-static"' .
+        strip libvirt_exporter
