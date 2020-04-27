@@ -1,51 +1,74 @@
 # Prometheus libvirt exporter
+Project forked from https://github.com/kumina/libvirt_exporter and substantially rewritten.
+Implemented support for several additional metrics, ceph rbd (and network block devices), ovs.
+Implemented statistics collection using GetAllDomainStats
 
-It's a fork of [libvirt_exporter](https://github.com/kumina/libvirt_exporter).
+And then forked again from https://github.com/rumanzo/libvirt_exporter_improved and rewritten.
+Implemented meta metrics and more info about disks, interfaces and domain.
 
-This version returns more data, which is needed in our case.
+Then forked once more from https://github.com/AlexZzz/libvirt-exporter
+Implemented support for several additional metrics, ceph rbd (and network block devices), ovs.
+Implemented statistics collection using GetAllDomainStats
 
-### The following metrics are being added
+Then forked once more from https://github.com/schnidrig/libvirt-exporter
+Added an Openstack project-name filter, allowing for the exclusion of rally-projects etc.
+Also added labels from the meta metrics to all metrics allowing for ad hoc filters in grafana.
 
-- libvirt_domains_number
+This repository provides code for a Prometheus metrics exporter
+for [libvirt](https://libvirt.org/). This exporter connects to any
+libvirt daemon and exports per-domain metrics related to CPU, memory,
+disk and network usage. By default, this exporter listens on TCP port
+9177.
 
-> Domain (instance) count.
+This exporter makes use of
+[libvirt-go](https://github.com/libvirt/libvirt-go), the official Go
+bindings for libvirt. This exporter make use of the
+`GetAllDomainStats()`
 
-- libvirt_domain_state_code
+The following metrics/labels are being exported:
 
-> Domain status code running/stopped.
+The labels are not correct: the labels from meta are added to all metrics where they are relevant. 
 
-### The following labels are being added
+```
+libvirt_domain_block_meta{bus="...",cache="...",discard="...",disk_type="...",domain="...",driver_type="...",serial="...",source_file="...",target_device="..."}
+libvirt_domain_block_stats_allocation{domain="-...",target_device="..."}
+libvirt_domain_block_stats_capacity_bytes{domain="-...",target_device="..."}
+libvirt_domain_block_stats_flush_requests_total{domain="-...",target_device="..."}
+libvirt_domain_block_stats_flush_total{domain="-...",target_device="..."}
+libvirt_domain_block_stats_physicalsize_bytes{domain="-...",target_device="..."}
+libvirt_domain_block_stats_read_bytes_total{domain="-...",target_device="..."}
+libvirt_domain_block_stats_read_requests_total{domain="-...",target_device="..."}
+libvirt_domain_block_stats_read_time_seconds_total{domain="-...",target_device="..."}
+libvirt_domain_block_stats_write_bytes_total{domain="-...",target_device="..."}
+libvirt_domain_block_stats_write_requests_total{domain="-...",target_device="..."}
+libvirt_domain_block_stats_write_time_seconds_total{domain="-...",target_device="..."}
 
-- disk_type
+libvirt_domain_info_meta{domain="...",flavor="...",instance_name="...",project_name="...",project_uuid="...",root_type="...",root_uuid="...",user_name="...",user_uuid="...",uuid="..."}
+libvirt_domain_info_cpu_time_seconds_total{domain="-..."}
+libvirt_domain_info_maximum_memory_bytes{domain="-..."}
+libvirt_domain_info_memory_usage_bytes{domain="-..."}
+libvirt_domain_info_virtual_cpus{domain="..."}
+libvirt_domain_info_vstate{domain="..."}
 
-> Disk type like file (qcow2), network (rbd, glusterfs) and block (iscsi, san).
+libvirt_domain_interface_meta{virtual_interface="...",domain="...",source_bridge="...",target_device="..."}
+libvirt_domain_interface_stats_receive_bytes_total{domain="...",target_device="..."}
+libvirt_domain_interface_stats_receive_drops_total{domain="...",target_device="..."}
+libvirt_domain_interface_stats_receive_errors_total{domain="...",target_device="..."}
+libvirt_domain_interface_stats_receive_packets_total{domain="...",target_device="..."}
+libvirt_domain_interface_stats_transmit_bytes_total{domain="...",target_device="..."}
+libvirt_domain_interface_stats_transmit_drops_total{domain="...",target_device="..."}
+libvirt_domain_interface_stats_transmit_errors_total{domain="...",target_device="..."}
+libvirt_domain_interface_stats_transmit_packets_total{domain="...",target_device="..."}
 
-- source_dev
+libvirt_domain_memory_stats_actual_balloon_bytes{domain="..."}
+libvirt_domain_memory_stats_available_bytes{domain="..."}
+libvirt_domain_memory_stats_disk_cache_bytes{domain="..."}
+libvirt_domain_memory_stats_major_fault_total{domain="..."}
+libvirt_domain_memory_stats_minor_fault_total{domain="..."}
+libvirt_domain_memory_stats_rss_bytes{domain="..."}
+libvirt_domain_memory_stats_unused_bytes{domain="..."}
+libvirt_domain_memory_stats_usable_bytes{domain="..."}
+libvirt_domain_memory_stats_used_percent{domain="..."}
 
-> Disk path like /dev/disk/by-id/78da994c65700812-5a2895de000000d0. Only for disk_type block.
-
-- source_name
-
-> Disk and pool name like ceph-pool-name/volume-358fba2f-19cf-4339-b1cc-e8e9d975a3cb. Only for disk_type network.
-
-- source_protocol
-
-> Disk network protocol like rbd. Only for disk_type network.
-
-With the `--libvirt.export-nova-metadata` flag, it will export the following additional OpenStack-specific labels for every domain:
-
-- project_uuid
-
-> OpenStack project uuid.
-
-- project_name
-
-> Same as in original. OpenStack project name.
-
-- nova_name
-
-> Renamed from name for back compatibility. OpenStack instance name.
-
-- flavor
-
-> Same as in original. OpenStack flavor name.
+libvirt_up
+```
