@@ -1,12 +1,16 @@
 #!/bin/sh
 
-docker run -i -v `pwd`:/gopath/src/github.com/fitbeard/libvirt_exporter docker.pkg.github.com/fitbeard/libvirt_exporter/libvirt_go:1.0 /bin/sh << 'EOF'
-set -ex
+set -x
 
-# Build the libvirt_exporter
-cd /gopath/src/github.com/fitbeard/libvirt_exporter
-export GOPATH=/gopath
-go get -v -t -d ./...
-go build --ldflags '-extldflags "-static"'
-strip libvirt_exporter
-EOF
+REPO_URL="github.com/fitbeard/libvirt_exporter"
+BINARY_NAME=libvirt-exporter
+
+docker run --rm \
+  -v "$PWD"/../go/src:/go/src -w /go/src \
+  -v "$PWD":/go/src/${REPO_URL} -w /go/src/${REPO_URL} \
+  -e GOOS=linux \
+  -e GOARCH=amd64 \
+   docker.pkg.github.com/fitbeard/libvirt_exporter/libvirt_go:2.0 go build --ldflags '-extldflags "-static"' -o ${BINARY_NAME}
+
+strip ${BINARY_NAME}
+upx ${BINARY_NAME}
