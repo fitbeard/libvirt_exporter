@@ -43,7 +43,7 @@ libvirt_domain_block_stats_write_bytes_total{domain="-...",target_device="..."}
 libvirt_domain_block_stats_write_requests_total{domain="-...",target_device="..."}
 libvirt_domain_block_stats_write_time_seconds_total{domain="-...",target_device="..."}
 
-libvirt_domain_info_meta{domain="...",flavor="...",instance_name="...",project_name="...",project_uuid="...",root_type="...",root_uuid="...",user_name="...",user_uuid="...",uuid="..."}
+libvirt_domain_info_meta{domain="...",flavor="...",nova_name="...",project_name="...",project_uuid="...",root_type="...",root_uuid="...",user_name="...",user_uuid="...",uuid="..."}
 libvirt_domain_info_cpu_time_seconds_total{domain="-..."}
 libvirt_domain_info_maximum_memory_bytes{domain="-..."}
 libvirt_domain_info_memory_usage_bytes{domain="-..."}
