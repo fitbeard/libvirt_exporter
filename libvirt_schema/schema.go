@@ -35,8 +35,8 @@ type NovaFlavor struct {
 }
 
 type NovaOwner struct {
-	Text    string   `xml:",chardata"`
-	User    struct {
+	Text string `xml:",chardata"`
+	User struct {
 		Text string `xml:",chardata"`
 		Uuid string `xml:"uuid,attr"`
 	} `xml:"user"`
@@ -59,10 +59,10 @@ type Disk struct {
 }
 
 type DiskSource struct {
-	File string `xml:"file,attr"`
-	Dev string `xml:"dev,attr"`
+	File     string `xml:"file,attr"`
+	Dev      string `xml:"dev,attr"`
 	Protocol string `xml:"protocol,attr"`
-	Name string `xml:"name,attr"`
+	Name     string `xml:"name,attr"`
 }
 
 type DiskTarget struct {
