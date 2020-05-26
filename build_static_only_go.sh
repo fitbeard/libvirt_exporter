@@ -13,4 +13,5 @@ docker run --rm \
    docker.pkg.github.com/fitbeard/libvirt_exporter/libvirt_go:3.0 go build --ldflags '-extldflags "-static"' -o ${BINARY_NAME}
 
 strip ${BINARY_NAME}
+sudo apt-get upgrade upx-ucl -y
 upx ${BINARY_NAME}
