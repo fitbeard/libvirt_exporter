@@ -3,7 +3,7 @@
 set -x
 
 REPO_URL="github.com/fitbeard/libvirt_exporter"
-BINARY_NAME=libvirt-exporter
+BINARY_NAME=libvirt_exporter
 
 docker run --rm \
   -v "$PWD"/../go/src:/go/src -w /go/src \
