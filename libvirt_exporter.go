@@ -18,15 +18,16 @@ package main
 
 import (
 	"encoding/xml"
+	"log"
+	"net/http"
+	"os"
+	"regexp"
+
 	"github.com/fitbeard/libvirt_exporter/libvirtSchema"
 	"github.com/libvirt/libvirt-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"log"
-	"net/http"
-	"os"
-	"regexp"
 )
 
 var (
@@ -227,7 +228,7 @@ var (
 		"The amount of memory in percent, that used by domain.",
 		[]string{"domain", "uuid", "nova_name", "flavor", "user_name", "user_uuid", "project_name", "project_uuid", "root_type", "root_uuid"},
 		nil)
-	
+
 	projectFilter *string
 )
 
@@ -370,7 +371,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				break
 			}
 		}
-        // "target_device", "source_file", "serial", "bus", "disk_type", "driver_type", "cache", "discard"
+		// "target_device", "source_file", "serial", "bus", "disk_type", "driver_type", "cache", "discard"
 		ch <- prometheus.MustNewConstMetric(
 			libvirtDomainMetaBlockDesc,
 			prometheus.GaugeValue,
@@ -710,7 +711,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				iface.Name,
 				SourceBridge,
 				VirtualInterface)
-		    }
+		}
 		if iface.RxPktsSet {
 			ch <- prometheus.MustNewConstMetric(
 				libvirtDomainInterfaceRxPacketsDesc,
@@ -729,7 +730,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				iface.Name,
 				SourceBridge,
 				VirtualInterface)
-			}
+		}
 		if iface.RxErrsSet {
 			ch <- prometheus.MustNewConstMetric(
 				libvirtDomainInterfaceRxErrsDesc,
@@ -748,7 +749,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				iface.Name,
 				SourceBridge,
 				VirtualInterface)
-			}
+		}
 		if iface.RxDropSet {
 			ch <- prometheus.MustNewConstMetric(
 				libvirtDomainInterfaceRxDropDesc,
@@ -767,7 +768,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				iface.Name,
 				SourceBridge,
 				VirtualInterface)
-			}
+		}
 		if iface.TxBytesSet {
 			ch <- prometheus.MustNewConstMetric(
 				libvirtDomainInterfaceTxBytesDesc,
@@ -786,7 +787,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				iface.Name,
 				SourceBridge,
 				VirtualInterface)
-			}
+		}
 		if iface.TxPktsSet {
 			ch <- prometheus.MustNewConstMetric(
 				libvirtDomainInterfaceTxPacketsDesc,
@@ -805,7 +806,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				iface.Name,
 				SourceBridge,
 				VirtualInterface)
-			}
+		}
 		if iface.TxErrsSet {
 			ch <- prometheus.MustNewConstMetric(
 				libvirtDomainInterfaceTxErrsDesc,
@@ -824,7 +825,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				iface.Name,
 				SourceBridge,
 				VirtualInterface)
-			}
+		}
 		if iface.TxDropSet {
 			ch <- prometheus.MustNewConstMetric(
 				libvirtDomainInterfaceTxDropDesc,
@@ -843,7 +844,7 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 				iface.Name,
 				SourceBridge,
 				VirtualInterface)
-			}
+		}
 	}
 
 	// Collect Memory Stats
@@ -984,7 +985,6 @@ func CollectDomain(ch chan<- prometheus.Metric, stat libvirt.DomainStats) error 
 		desc.Metadata.NovaInstance.NovaRoot.RootType,
 		desc.Metadata.NovaInstance.NovaRoot.RootUUID)
 
-
 	return nil
 }
 
@@ -1002,14 +1002,18 @@ func CollectFromLibvirt(ch chan<- prometheus.Metric, uri string) error {
 		libvirt.DOMAIN_STATS_PERF|libvirt.DOMAIN_STATS_VCPU,
 		//libvirt.CONNECT_GET_ALL_DOMAINS_STATS_NOWAIT, // maybe in future
 		libvirt.CONNECT_GET_ALL_DOMAINS_STATS_RUNNING|libvirt.CONNECT_GET_ALL_DOMAINS_STATS_SHUTOFF)
+	defer func(stats []libvirt.DomainStats) {
+		for _, stat := range stats {
+			stat.Domain.Free()
+		}
+	}(stats)
 	if err != nil {
 		return err
 	}
 	for _, stat := range stats {
 		err = CollectDomain(ch, stat)
-		stat.Domain.Free()
 		if err != nil {
-			return err
+			log.Printf("Failed to scrape metrics: %s", err)
 		}
 	}
 	return nil
@@ -1126,7 +1130,7 @@ func main() {
 		libvirtURI    = app.Flag("libvirt.uri", "Libvirt URI from which to extract metrics.").Default("qemu:///system").String()
 	)
 
-    projectFilter = app.Flag("filter.project", "Regular expression matching project names that should be filtered out.").Default("^$").String()
+	projectFilter = app.Flag("filter.project", "Regular expression matching project names that should be filtered out.").Default("^$").String()
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
